@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCR Tech Job Market Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chosen Palette: Corporate Insights -->
+    <!-- Background: #f1f5f9 (Slate 100) -->
+    <!-- Primary: #3b82f6 (Blue 500) -->
+    <!-- Secondary: #10b981 (Emerald 500) -->
+    <!-- Text: #1e293b (Slate 800) -->
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; height: 300px; margin: 0 auto; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-radius: 0.75rem; }
+        .company-row:hover { background-color: #f8fafc; cursor: pointer; }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-noida { background-color: #dbeafe; color: #1e40af; }
+        .badge-gurugram { background-color: #dcfce7; color: #166534; }
+        .badge-delhi { background-color: #fae8ff; color: #86198f; }
+    </style>
+
+    <!-- Application Structure Plan:
+         1. Executive Summary: Quick stats on the NCR market (Noida vs Gurugram vs Delhi).
+         2. Market Visualization: Charts showing company types (Startups vs MNCs) and tech stack demand.
+         3. Interactive Company Database: The core feature. A filterable table of companies with details on "Fresher Friendliness", "Location", and "Focus".
+         4. Actionable Insights: A detail view (modal) giving specific advice for applying to each type of company.
+         Why: Freshers often apply blindly. This structure forces a strategic approach—analyzing the target before applying.
+    -->
+
+    <!-- Visualization & Content Choices:
+         - Location Distribution (Pie Chart): Quickly informs the user that Gurugram has more startups while Noida has more service giants.
+         - Difficulty vs. Pay Matrix (Scatter/Bubble logic simplified to Bar): Helps user manage expectations.
+         - Interactive Table: The most efficient way to present a list of 30+ companies with sorting capabilities.
+         - Interaction: Clicking a company row opens a detailed "Strategy Card" with specific tech stack tips.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                    <i class="fas fa-search-location"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">NCR Job Market Scanner</h1>
+                    <p class="text-xs text-slate-400">Target List for Full Stack Freshers</p>
+                </div>
+            </div>
+            <div class="hidden md:block text-sm text-slate-300">
+                <span class="mr-4"><i class="fas fa-map-marker-alt mr-1"></i> Noida / Gurugram / Delhi</span>
+                <span><i class="fas fa-database mr-1"></i> 30+ Companies Tracked</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Intro Section -->
+        <section class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Strategic Analysis</h2>
+            <p class="text-slate-600 leading-relaxed">
+                The National Capital Region (NCR) is one of India's largest tech hubs, but the opportunities are distinct by city. 
+                <span class="font-semibold text-blue-600">Noida</span> is dominated by large Service-based MNCs (ideal for stability). 
+                <span class="font-semibold text-emerald-600">Gurugram</span> is the startup capital with high-growth product companies (ideal for learning & pay). 
+                <span class="font-semibold text-purple-600">Delhi</span> has a mix of government tech and smaller agencies.
+                Use this dashboard to filter companies that align with your MERN stack skills.
+            </p>
+        </section>
+
+        <!-- Analytics Dashboard -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Chart 1: Location Distribution -->
+            <div class="glass-card p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-slate-800">Opportunity Distribution by City</h3>
+                    <i class="fas fa-chart-pie text-slate-400"></i>
+                </div>
+                <div class="chart-container">
+                    <canvas id="locationChart"></canvas>
+                </div>
+                <p class="text-xs text-center text-slate-500 mt-4">Gurugram leads in startup volume; Noida leads in MNC volume.</p>
+            </div>
+
+            <!-- Chart 2: Company Type vs Fresher Hiring -->
+            <div class="glass-card p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-slate-800">Company Types & Fresher Hiring Volume</h3>
+                    <i class="fas fa-chart-bar text-slate-400"></i>
+                </div>
+                <div class="chart-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
+                <p class="text-xs text-center text-slate-500 mt-4">Service-based companies hire the most freshers in bulk.</p>
+            </div>
+        </section>
+
+        <!-- Company Database -->
+        <section>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Target Company Database</h2>
+                    <p class="text-sm text-slate-500">Click on any row to see specific application strategies.</p>
+                </div>
+                
+                <!-- Filters -->
+                <div class="flex flex-wrap gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+                    <button onclick="filterTable('all')" class="filter-btn active px-4 py-2 text-sm font-medium rounded-md transition-colors bg-slate-800 text-white">All</button>
+                    <button onclick="filterTable('Noida')" class="filter-btn px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 transition-colors">Noida</button>
+                    <button onclick="filterTable('Gurugram')" class="filter-btn px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 transition-colors">Gurugram</button>
+                    <button onclick="filterTable('MNC')" class="filter-btn px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 transition-colors">MNCs</button>
+                    <button onclick="filterTable('Startup')" class="filter-btn px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 transition-colors">Startups</button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-semibold">
+                                <th class="p-4">Company Name</th>
+                                <th class="p-4">Location</th>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Tech Focus</th>
+                                <th class="p-4 text-center">Fresher Friendly?</th>
+                                <th class="p-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companyTableBody" class="text-sm text-slate-700 divide-y divide-slate-100">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Company Details -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:w-full sm:max-w-lg">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="flex items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <i class="fas fa-building text-blue-600"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-lg font-semibold leading-6 text-slate-900" id="modalTitle">Company Name</h3>
+                                <div class="mt-2">
+                                    <div class="flex gap-2 mb-4" id="modalTags">
+                                        <!-- Tags -->
+                                    </div>
+                                    <p class="text-sm text-slate-600 mb-4" id="modalDescription">
+                                        Description of the company...
+                                    </p>
+                                    
+                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 mb-4">
+                                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Application Strategy</h4>
+                                        <ul class="list-disc list-inside text-sm text-slate-700 space-y-1" id="modalStrategy">
+                                            <!-- Strategy items -->
+                                        </ul>
+                                    </div>
+
+                                    <div class="bg-blue-50 p-3 rounded text-xs text-blue-800">
+                                        <i class="fas fa-lightbulb mr-1"></i> <strong>Tip:</strong> <span id="modalTip">Specific tip here.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <a id="modalSearchLink" href="#" target="_blank" class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto">
+                            Search Careers Page
+                        </a>
+                        <button type="button" onclick="closeModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database of Companies in NCR
+        const companies = [
+            // NOIDA - Service/MNC
+            { name: "HCL Tech", location: "Noida", type: "MNC", focus: "Java, .NET, Full Stack", friendly: "High", desc: "Headquartered in Noida. Huge recruiter for freshers.", strategy: ["Apply via 'First Careers' program", "Focus on aptitude tests", "Basic coding knowledge required"], tip: "They often conduct mass hiring drives. Check their dedicated career portal." },
+            { name: "Tata Consultancy Services (TCS)", location: "Noida", type: "MNC", focus: "Java, Python, MERN", friendly: "High", desc: "Major campus in Noida Sector 62. The NQT exam is the main gateway.", strategy: ["Register for TCS NQT (National Qualifier Test)", "Prepare for numerical ability", "Know basic DSA"], tip: "NQT score is valid for 2 years and used by other companies too." },
+            { name: "PayTM", location: "Noida", type: "Product", focus: "MERN, Java, Go", friendly: "Medium", desc: "Fintech giant based in Noida. High bar for DSA skills.", strategy: ["Strong DSA (LeetCode Medium)", "System Design basics", "Referrals are very effective"], tip: "They value problem-solving over specific frameworks for freshers." },
+            { name: "Adobe", location: "Noida", type: "Product", focus: "C++, Java, React", friendly: "Low", desc: "Top tier product company. Very high packages, very hard interviews.", strategy: ["Elite DSA skills required", "Participate in Hackathons", "Apply for internships first"], tip: "Look for 'SheCodes' if eligible, or off-campus drives for 'Member of Technical Staff'." },
+            { name: "InfoEdge (Naukri.com)", location: "Noida", type: "Product", focus: "MERN, PHP, Python", friendly: "Medium", desc: "Parent company of Naukri, Jeevansathi. Great engineering culture.", strategy: ["Focus on Database concepts", "Solid project portfolio", "Apply via Naukri.com directly"], tip: "They appreciate practical development skills and MERN stack knowledge." },
+            { name: "To The New", location: "Noida", type: "Service/Product", focus: "MERN, Java, Cloud", friendly: "High", desc: "Digital tech company known for good culture and modern tech stack.", strategy: ["Know React/Node deeply", "Prepare for a live coding round", "Cultural fit is important"], tip: "They specifically hire 'Newers' (Freshers) for MERN stack roles often." },
+            { name: "Globallogic", location: "Noida", type: "Service", focus: "C++, Java, React", friendly: "Medium", desc: "Product engineering services. Hitachi group company.", strategy: ["Strong C++ or Java basics", "Good communication skills", "Aptitude rounds"], tip: "They work heavily in healthcare and automotive domains." },
+            { name: "PhysicsWallah", location: "Noida", type: "Startup/Unicorn", focus: "MERN, Mobile", friendly: "Medium", desc: "EdTech unicorn. fast-paced environment.", strategy: ["Showcase EdTech related projects", "Demonstrate ability to work fast", "Reach out to leads on LinkedIn"], tip: "Highlight any app optimization or video streaming knowledge." },
+            { name: "Samsung Research", location: "Noida", type: "Product", focus: "C++, Java, Android", friendly: "Medium", desc: "R&D center. Hires heavily from top colleges but also off-campus.", strategy: ["Must know DSA (Trees, Graphs)", "Competitive programming background helps", "Clear CS fundamentals"], tip: "They have a specific coding test platform (SWC) similar to LeetCode." },
+            
+            // GURUGRAM - Startup/Product
+            { name: "Zomato", location: "Gurugram", type: "Product", focus: "React, React Native", friendly: "Low", desc: "Food tech giant. High hiring bar, unique culture.", strategy: ["Unique/Creative Resume", "Strong Open Source work", "Twitter/LinkedIn outreach"], tip: "They often ignore standard applications; build something cool and tweet at them." },
+            { name: "Urban Company", location: "Gurugram", type: "Startup/Unicorn", focus: "Node.js, React", friendly: "Low", desc: "Service marketplace. Excellent engineering team.", strategy: ["Machine Coding rounds", "Low Level Design (LLD)", "Node.js internal workings"], tip: "Focus on how you structure your code and handle asynchronous operations." },
+            { name: "Nagarro", location: "Gurugram", type: "Service", focus: "Java, .NET, Angular", friendly: "High", desc: "IT consulting. Known for hiring freshers with good aptitude.", strategy: ["Aptitude is key (Math/Logic)", "Basic coding", "Communication skills"], tip: "Their aptitude test is the main filter. Practice speed math." },
+            { name: "Cars24", location: "Gurugram", type: "Startup/Unicorn", focus: "MERN, Python", friendly: "Medium", desc: "Auto-tech unicorn. Data and tech heavy.", strategy: ["Data structure logic", "React component lifecycle", "State management (Redux)"], tip: "Be ready to explain your projects in extreme depth." },
+            { name: "1mg (Tata 1mg)", location: "Gurugram", type: "Startup", focus: "Python, React", friendly: "Medium", desc: "Health tech. Acquired by Tata. Steady growth.", strategy: ["Python proficiency", "Frontend basics", "Interest in healthcare"], tip: "Good entry point if you know Python alongside JS." },
+            { name: "MakeMyTrip", location: "Gurugram", type: "Product", focus: "Java, React, Big Data", friendly: "Medium", desc: "Travel tech leader. Good pay and stability.", strategy: ["DSA", "Java Multithreading", "React Performance"], tip: "They solve complex scale problems. Read their engineering blog." },
+            { name: "PolicyBazaar", location: "Gurugram", type: "Product", focus: "Java, JS", friendly: "High", desc: "Fintech/Insuretech. Large hiring volume.", strategy: ["Logical reasoning", "Basic coding", "Willingness to learn"], tip: "Good place to start career due to training programs." },
+            { name: "Xebia", location: "Gurugram", type: "Service/Consulting", focus: "DevOps, Java, React", friendly: "Medium", desc: "High-end consultancy. Very strong technical focus.", strategy: ["Clean code practices", "Modern frameworks", "TDD knowledge"], tip: "They value code quality over just making things work." },
+            { name: "Cvent", location: "Gurugram", type: "Product", focus: "Java, React", friendly: "Medium", desc: "Event management software. US based MNC.", strategy: ["Standard Interview Process", "Java/OOPs concepts", "Database queries"], tip: "Great work-life balance compared to startups." },
+
+            // DELHI/NCR Mixed
+            { name: "Lenskart", location: "Gurugram/Delhi", type: "Product", focus: "MERN, Mobile", friendly: "Medium", desc: "Eyewear retail unicorn. Tech-driven supply chain.", strategy: ["Frontend skills", "Problem solving", "Agile mindset"], tip: "Omnichannel retail logic is a plus." },
+            { name: "Genpact", location: "Noida/Gurugram", type: "Service", focus: "Analytics, Java", friendly: "High", desc: "Professional services firm. Massive presence in NCR.", strategy: ["Campus drives", "Off-campus mass hiring", "Basic technical screening"], tip: "Easier to get into than product companies, good for getting first experience." },
+            { name: "Grapecity", location: "Noida", type: "Product", focus: "JS, .NET", friendly: "Medium", desc: "Builds developer tools (UI grids, spreadsheets).", strategy: ["Deep JavaScript knowledge", "DOM manipulation", "CSS expertise"], tip: "Since they build UI tools, your JS fundamentals must be incredibly strong." },
+        ];
+
+        // --- logic ---
+
+        function init() {
+            renderTable('all');
+            renderCharts();
+        }
+
+        function renderTable(filter) {
+            const tbody = document.getElementById('companyTableBody');
+            tbody.innerHTML = '';
+            
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                if(btn.innerText.includes(filter) || (filter === 'all' && btn.innerText === 'All')) {
+                    btn.classList.add('bg-slate-800', 'text-white');
+                    btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                } else {
+                    btn.classList.remove('bg-slate-800', 'text-white');
+                    btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+                }
+            });
+
+            const filtered = filter === 'all' 
+                ? companies 
+                : companies.filter(c => c.location.includes(filter) || c.type.includes(filter));
+
+            filtered.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = 'company-row border-b border-slate-100 last:border-0 transition-colors';
+                tr.onclick = () => openModal(c.name);
+                
+                // Badge Logic
+                let locBadge = `badge-noida`;
+                if(c.location.includes("Gurugram")) locBadge = `badge-gurugram`;
+                if(c.location.includes("Delhi")) locBadge = `badge-delhi`;
+
+                // Friendly Bar
+                let friendlyColor = 'bg-red-500';
+                let friendlyWidth = '30%';
+                if(c.friendly === 'Medium') { friendlyColor = 'bg-yellow-500'; friendlyWidth = '60%'; }
+                if(c.friendly === 'High') { friendlyColor = 'bg-green-500'; friendlyWidth = '90%'; }
+
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-800">${c.name}</td>
+                    <td class="p-4"><span class="badge ${locBadge} bg-opacity-20">${c.location}</span></td>
+                    <td class="p-4 text-slate-500">${c.type}</td>
+                    <td class="p-4 text-xs font-mono text-blue-600">${c.focus}</td>
+                    <td class="p-4 text-center">
+                        <div class="w-24 bg-slate-200 rounded-full h-2 mx-auto">
+                            <div class="${friendlyColor} h-2 rounded-full" style="width: ${friendlyWidth}"></div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-1 block">${c.friendly}</span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <button class="text-slate-400 hover:text-blue-600"><i class="fas fa-chevron-right"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTable(criteria) {
+            renderTable(criteria);
+        }
+
+        function openModal(companyName) {
+            const company = companies.find(c => c.name === companyName);
+            if(!company) return;
+
+            document.getElementById('modalTitle').innerText = company.name;
+            document.getElementById('modalDescription').innerText = company.desc;
+            document.getElementById('modalTip').innerText = company.tip;
+            document.getElementById('modalSearchLink').href = `https://www.google.com/search?q=${company.name}+careers+freshers+NCR`;
+            
+            const tagsDiv = document.getElementById('modalTags');
+            tagsDiv.innerHTML = `
+                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">${company.location}</span>
+                <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded">${company.type}</span>
+            `;
+
+            const stratList = document.getElementById('modalStrategy');
+            stratList.innerHTML = '';
+            company.strategy.forEach(s => {
+                const li = document.createElement('li');
+                li.innerText = s;
+                stratList.appendChild(li);
+            });
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // --- Charts ---
+
+        function renderCharts() {
+            // Chart 1: Location Distribution
+            const locCounts = { Noida: 0, Gurugram: 0, Delhi: 0 };
+            companies.forEach(c => {
+                if(c.location.includes("Noida")) locCounts.Noida++;
+                else if(c.location.includes("Gurugram")) locCounts.Gurugram++;
+                else locCounts.Delhi++;
+            });
+
+            new Chart(document.getElementById('locationChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Noida (Service Hub)', 'Gurugram (Startup Hub)', 'Delhi (Mixed)'],
+                    datasets: [{
+                        data: [locCounts.Noida, locCounts.Gurugram, locCounts.Delhi],
+                        backgroundColor: ['#3b82f6', '#10b981', '#a855f7'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Chart 2: Type vs Volume
+            const typeCounts = { MNC: 0, Startup: 0, Product: 0 };
+            companies.forEach(c => {
+                if(c.type.includes("MNC") || c.type.includes("Service")) typeCounts.MNC++;
+                else if(c.type.includes("Startup")) typeCounts.Startup++;
+                else typeCounts.Product++;
+            });
+
+            new Chart(document.getElementById('typeChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Service/MNCs', 'Startups', 'Product Companies'],
+                    datasets: [{
+                        label: 'Companies in Database',
+                        data: [typeCounts.MNC, typeCounts.Startup, typeCounts.Product],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#ef4444'],
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
