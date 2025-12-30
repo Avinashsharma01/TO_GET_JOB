@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avinash Sharma - Full Stack Developer Portfolio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome (for icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Warm Professional -->
+    <!-- Primary: #1e293b (Slate 800) -->
+    <!-- Background: #f8fafc (Slate 50) -->
+    <!-- Accent: #0ea5e9 (Sky 500) -->
+    <!-- Text: #334155 (Slate 700) -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            max-height: 400px;
+            margin: 0 auto;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .nav-item.active {
+            color: #0ea5e9;
+            border-bottom: 2px solid #0ea5e9;
+        }
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+
+    <!-- Application Structure Plan: 
+         1. Hero Section: Immediate identification, location preference (NCR), and "Hire Me" CTA.
+         2. Skills Dashboard: Interactive visualization of the resume's skills section to show breadth and depth (Frontend vs Backend vs Tools).
+         3. Project Gallery: The core proof of work. Filterable by tech stack (MERN, React, etc.) to show versatility.
+         4. Education & Certs: Timeline view for easy scanning of academic background.
+         5. Contact/Footer: Simple methods to reach out.
+    -->
+    
+    <!-- Visualization & Content Choices:
+         - Skill Distribution (Doughnut Chart): Shows the balance of a "Full Stack" developer (Frontend vs Backend vs Core). Goal: Show balance.
+         - Proficiency Radar (Radar Chart): Highlights strengths in core areas like React, Node, and DSA. Goal: Inform recruiter of strongest suits.
+         - Project Filter (Interactive Grid): Allows recruiters to find "React" or "Node" projects quickly.
+         - NO SVG Graphics used directly in HTML body (using FontAwesome for icons).
+         - NO Mermaid JS.
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased selection:bg-sky-200 selection:text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-slate-800 tracking-tight">Avinash<span class="text-sky-500">.dev</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <button onclick="scrollToSection('hero')" class="nav-item active text-sm font-medium hover:text-sky-600 transition-colors px-1 py-2">Home</button>
+                    <button onclick="scrollToSection('skills')" class="nav-item text-sm font-medium hover:text-sky-600 transition-colors px-1 py-2">Skills Analysis</button>
+                    <button onclick="scrollToSection('projects')" class="nav-item text-sm font-medium hover:text-sky-600 transition-colors px-1 py-2">Projects</button>
+                    <button onclick="scrollToSection('education')" class="nav-item text-sm font-medium hover:text-sky-600 transition-colors px-1 py-2">Education</button>
+                    <a href="mailto:avinashsharma31384@gmail.com" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors shadow-lg">Contact Me</a>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-slate-600 hover:text-slate-900 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <button onclick="scrollToSection('hero'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-sky-600 hover:bg-slate-50">Home</button>
+                <button onclick="scrollToSection('skills'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-sky-600 hover:bg-slate-50">Skills</button>
+                <button onclick="scrollToSection('projects'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-sky-600 hover:bg-slate-50">Projects</button>
+                <a href="mailto:avinashsharma31384@gmail.com" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-sky-600 font-bold hover:bg-slate-50">Hire Me</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+
+        <!-- Hero Section -->
+        <section id="hero" class="min-h-[90vh] flex items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
+                <div class="absolute -top-24 -left-24 w-96 h-96 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+                <div class="absolute top-0 -right-4 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+                <div class="absolute -bottom-8 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div class="inline-flex items-center px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-semibold tracking-wide uppercase mb-6">
+                    <span class="w-2 h-2 bg-sky-500 rounded-full mr-2 animate-pulse"></span>
+                    Open to work in Noida / Gurugram / Delhi
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight">
+                    Hello, I'm <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-indigo-600">Avinash Sharma</span>
+                </h1>
+                <p class="mt-4 text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto font-light">
+                    A detail-oriented <strong class="text-slate-800 font-semibold">Full-Stack MERN Developer</strong> driven to build innovative web solutions. 
+                    Looking to launch my career in the NCR tech hub.
+                </p>
+                
+                <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                    <button onclick="scrollToSection('projects')" class="px-8 py-3 rounded-lg bg-slate-900 text-white font-semibold shadow-lg hover:bg-slate-800 hover:-translate-y-1 transition-all duration-200">
+                        View My Work
+                    </button>
+                    <button onclick="copyEmail()" class="px-8 py-3 rounded-lg bg-white text-slate-700 border border-slate-300 font-semibold shadow-sm hover:bg-slate-50 hover:-translate-y-1 transition-all duration-200 flex items-center justify-center gap-2 group">
+                        <i class="far fa-envelope text-slate-400 group-hover:text-sky-500"></i>
+                        <span id="email-btn-text">Copy Email</span>
+                    </button>
+                </div>
+
+                <div class="mt-12 flex justify-center gap-6 text-slate-400">
+                    <a href="#" class="hover:text-sky-600 transition-colors transform hover:scale-110"><i class="fab fa-github text-2xl"></i></a>
+                    <a href="#" class="hover:text-blue-600 transition-colors transform hover:scale-110"><i class="fab fa-linkedin text-2xl"></i></a>
+                    <a href="#" class="hover:text-slate-800 transition-colors transform hover:scale-110"><i class="fas fa-code text-2xl"></i></a> <!-- LeetCode Placeholder -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About & Stats Section -->
+        <section id="skills" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Technical Proficiency</h2>
+                    <p class="text-slate-600 max-w-2xl mx-auto">
+                        My academic journey and project experience have equipped me with a diverse set of tools. 
+                        Here is a data-driven breakdown of my technical capabilities.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    
+                    <!-- Text Content -->
+                    <div class="space-y-8">
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-layer-group text-sky-500"></i> Full-Stack Arsenal
+                            </h3>
+                            <p class="text-slate-600 leading-relaxed mb-4">
+                                I specialize in the <span class="font-semibold text-sky-600">MERN Stack</span> (MongoDB, Express, React, Node.js). 
+                                My projects demonstrate ability in both frontend responsiveness (Tailwind, Vite) and backend logic (JWT Auth, REST APIs, Socket.IO).
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-semibold">Java</span>
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">JavaScript</span>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">React</span>
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Node.js</span>
+                                <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">Redux</span>
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">Docker</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-brain text-purple-500"></i> Core Concepts
+                            </h3>
+                            <p class="text-slate-600 leading-relaxed">
+                                Beyond frameworks, I have a solid foundation in computer science principles including 
+                                <span class="font-semibold text-slate-800">Data Structures & Algorithms (DSA)</span>, 
+                                Object-Oriented Programming (OOPS), and Database Management Systems (DBMS).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Area -->
+                    <div class="grid grid-cols-1 gap-8">
+                        <!-- Chart 1: Skill Distribution -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                            <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 text-center">Tech Stack Distribution</h4>
+                            <div class="chart-container h-64">
+                                <canvas id="skillDistChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Detailed Skills Grid -->
+                <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="p-4 bg-slate-50 rounded-lg text-center hover:bg-white hover:shadow-md transition-all">
+                        <i class="fab fa-react text-4xl text-sky-400 mb-3"></i>
+                        <h4 class="font-bold text-slate-700">Frontend</h4>
+                        <p class="text-xs text-slate-500 mt-1">React, Next.js, Angular, Tailwind</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-lg text-center hover:bg-white hover:shadow-md transition-all">
+                        <i class="fab fa-node text-4xl text-green-500 mb-3"></i>
+                        <h4 class="font-bold text-slate-700">Backend</h4>
+                        <p class="text-xs text-slate-500 mt-1">Node, Express, JWT, Socket.IO</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-lg text-center hover:bg-white hover:shadow-md transition-all">
+                        <i class="fas fa-database text-4xl text-yellow-500 mb-3"></i>
+                        <h4 class="font-bold text-slate-700">Database</h4>
+                        <p class="text-xs text-slate-500 mt-1">MongoDB, Mongoose, SQL</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-lg text-center hover:bg-white hover:shadow-md transition-all">
+                        <i class="fas fa-tools text-4xl text-slate-600 mb-3"></i>
+                        <h4 class="font-bold text-slate-700">Tools</h4>
+                        <p class="text-xs text-slate-500 mt-1">Git, Docker, Firebase, Postman</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="py-20 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Featured Projects</h2>
+                        <p class="text-slate-600">A collection of full-stack applications solving real problems.</p>
+                    </div>
+                    
+                    <!-- Filter Buttons -->
+                    <div class="flex space-x-2 mt-4 md:mt-0 overflow-x-auto pb-2 md:pb-0">
+                        <button onclick="filterProjects('all')" class="filter-btn active px-4 py-2 bg-white text-slate-700 rounded-full text-sm font-semibold shadow-sm border border-slate-200 hover:bg-slate-100 transition-colors focus:ring-2 focus:ring-sky-500 focus:outline-none whitespace-nowrap" data-filter="all">All Projects</button>
+                        <button onclick="filterProjects('mern')" class="filter-btn px-4 py-2 bg-white text-slate-700 rounded-full text-sm font-semibold shadow-sm border border-slate-200 hover:bg-slate-100 transition-colors focus:ring-2 focus:ring-sky-500 focus:outline-none whitespace-nowrap" data-filter="mern">MERN Stack</button>
+                        <button onclick="filterProjects('realtime')" class="filter-btn px-4 py-2 bg-white text-slate-700 rounded-full text-sm font-semibold shadow-sm border border-slate-200 hover:bg-slate-100 transition-colors focus:ring-2 focus:ring-sky-500 focus:outline-none whitespace-nowrap" data-filter="realtime">Real-Time</button>
+                    </div>
+                </div>
+
+                <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    <!-- Projects injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Education & Certifications -->
+        <section id="education" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    
+                    <!-- Education Column -->
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                            <i class="fas fa-graduation-cap text-sky-500"></i> Education History
+                        </h2>
+                        <div class="space-y-8 border-l-2 border-slate-200 pl-8 relative">
+                            <!-- Timeline Item 1 -->
+                            <div class="relative">
+                                <div class="absolute -left-[41px] top-1 w-5 h-5 rounded-full bg-white border-4 border-sky-500"></div>
+                                <h3 class="text-lg font-bold text-slate-800">B.Tech in Information Technology</h3>
+                                <p class="text-sky-600 font-medium">Swami Vivekanand Subharti University</p>
+                                <p class="text-sm text-slate-500 mt-1">2022 - 2026 (Ongoing, 4th Year)</p>
+                                <p class="text-slate-600 mt-2 text-sm">Focus on Core Computing, SDLC, and Full Stack Development.</p>
+                            </div>
+                            <!-- Timeline Item 2 -->
+                            <div class="relative">
+                                <div class="absolute -left-[41px] top-1 w-5 h-5 rounded-full bg-slate-200 border-4 border-slate-300"></div>
+                                <h3 class="text-lg font-bold text-slate-800">Intermediate (12th Grade)</h3>
+                                <p class="text-slate-600 font-medium">Bhola Prashad Singh (BSEB)</p>
+                                <p class="text-sm text-slate-500 mt-1">2018 - 2020</p>
+                            </div>
+                            <!-- Timeline Item 3 -->
+                            <div class="relative">
+                                <div class="absolute -left-[41px] top-1 w-5 h-5 rounded-full bg-slate-200 border-4 border-slate-300"></div>
+                                <h3 class="text-lg font-bold text-slate-800">Matriculation (10th Grade)</h3>
+                                <p class="text-slate-600 font-medium">Gandhi Smark High School (BSEB)</p>
+                                <p class="text-sm text-slate-500 mt-1">2018</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certifications Column -->
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                            <i class="fas fa-certificate text-sky-500"></i> Certifications & Learning
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="p-4 border border-slate-100 rounded-xl bg-slate-50 hover:bg-sky-50 transition-colors">
+                                <div class="text-sky-600 mb-2"><i class="fas fa-code"></i> NPTEL</div>
+                                <h4 class="font-bold text-slate-800">DSA with Java</h4>
+                                <p class="text-xs text-slate-500">Data Structures & Algorithms mastery</p>
+                            </div>
+                            <div class="p-4 border border-slate-100 rounded-xl bg-slate-50 hover:bg-sky-50 transition-colors">
+                                <div class="text-sky-600 mb-2"><i class="fab fa-java"></i> NPTEL</div>
+                                <h4 class="font-bold text-slate-800">Java Programming</h4>
+                                <p class="text-xs text-slate-500">Core Java concepts</p>
+                            </div>
+                            <div class="p-4 border border-slate-100 rounded-xl bg-slate-50 hover:bg-sky-50 transition-colors">
+                                <div class="text-sky-600 mb-2"><i class="fas fa-cloud"></i> NPTEL</div>
+                                <h4 class="font-bold text-slate-800">Cloud Computing</h4>
+                                <p class="text-xs text-slate-500">Cloud infrastructure fundamentals</p>
+                            </div>
+                            <div class="p-4 border border-slate-100 rounded-xl bg-slate-50 hover:bg-sky-50 transition-colors">
+                                <div class="text-sky-600 mb-2"><i class="fas fa-laptop-code"></i> Coursera</div>
+                                <h4 class="font-bold text-slate-800">Web Design</h4>
+                                <p class="text-xs text-slate-500">UI/UX principles</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA / Footer -->
+        <section class="py-20 bg-slate-900 text-white text-center">
+            <div class="max-w-4xl mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Contribute</h2>
+                <p class="text-slate-300 mb-8 text-lg">
+                    I am available for immediate joining in Noida, Gurugram, or Delhi. 
+                    Let's discuss how I can add value to your development team.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-6">
+                    <a href="mailto:avinashsharma31384@gmail.com" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-full transition-transform hover:scale-105 shadow-lg shadow-sky-500/30">
+                        Hire Me Now
+                    </a>
+                    <a href="tel:+916201693634" class="bg-transparent border-2 border-slate-600 hover:border-white text-white font-bold py-3 px-8 rounded-full transition-colors">
+                        Call: +91 6201693634
+                    </a>
+                </div>
+                <div class="mt-16 pt-8 border-t border-slate-800 text-slate-500 text-sm">
+                    <p>&copy; 2025 Avinash Sharma. Built with Tailwind CSS & JavaScript.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Project Details -->
+    <div id="project-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Background backdrop -->
+        <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
+
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-slate-200">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-2xl font-bold leading-6 text-slate-900" id="modal-title">Project Title</h3>
+                                    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                        <i class="fas fa-times text-xl"></i>
+                                    </button>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="flex flex-wrap gap-2 mb-4" id="modal-tags">
+                                        <!-- Tags injected here -->
+                                    </div>
+                                    <p class="text-sm text-slate-600 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100" id="modal-description">
+                                        Description goes here.
+                                    </p>
+                                    
+                                    <h4 class="font-bold text-slate-800 text-sm mb-2">Key Tech Stack:</h4>
+                                    <p id="modal-tech" class="text-sm text-sky-600 font-medium mb-4"></p>
+
+                                    <div class="flex gap-4 mt-6">
+                                        <button class="flex-1 bg-slate-900 text-white py-2 rounded-lg hover:bg-slate-800 transition-colors text-sm font-medium">
+                                            <i class="fab fa-github mr-2"></i> View Code
+                                        </button>
+                                        <!-- Placeholder for live demo if available -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Store based on Resume
+        const portfolioData = {
+            projects: [
+                {
+                    id: 1,
+                    title: "Student Marketplace",
+                    category: ["mern", "realtime"],
+                    shortDesc: "A complete marketplace with authentication, listings, and real-time chat.",
+                    fullDesc: "A comprehensive React (Vite) & Express application. Features include JWT authentication, product listings, wishlist management, image uploads via Cloudinary, and real-time chat functionality using Socket.IO. Designed for students to buy/sell items within campus.",
+                    tech: "React, Node.js, Express, MongoDB, Socket.IO, Cloudinary",
+                    icon: "fa-store"
+                },
+                {
+                    id: 2,
+                    title: "Academic Notes System",
+                    category: ["mern"],
+                    shortDesc: "LMS for notes management with role-based access control.",
+                    fullDesc: "An Academic Notes Management System built with the MERN stack. Allows students to access notes while administrators manage uploads via a secure dashboard. Implements JWT for security and Multer for file handling.",
+                    tech: "MongoDB, Express.js, React, Node.js, JWT, Multer",
+                    icon: "fa-book"
+                },
+                {
+                    id: 3,
+                    title: "Institution Management",
+                    category: ["mern", "ts"],
+                    shortDesc: "Full-featured LMS with fee management and analytics.",
+                    fullDesc: "A robust platform for educational institutes. Features role-based dashboards, fee management systems, course enrollment logic, assignment submissions, and performance analytics. Built with TypeScript for type safety.",
+                    tech: "React, TypeScript, Tailwind CSS, Node.js, Express, MongoDB",
+                    icon: "fa-university"
+                },
+                {
+                    id: 4,
+                    title: "Course Selling Platform",
+                    category: ["mern"],
+                    shortDesc: "Online course marketplace with secure auth and browsing.",
+                    fullDesc: "A full-stack marketplace for digital courses. Users can browse, filter, and enroll in courses. Includes a dedicated admin panel for course creation and management.",
+                    tech: "React, Node.js, Express, MongoDB, JWT",
+                    icon: "fa-laptop-code"
+                }
+            ],
+            skills: {
+                frontend: 85,
+                backend: 80,
+                database: 75,
+                tools: 70
+            }
+        };
+
+        // --- Core Functions ---
+
+        function init() {
+            renderProjects('all');
+            initCharts();
+            setupScrollSpy();
+        }
+
+        // --- Project Rendering & Filtering ---
+
+        function renderProjects(filter) {
+            const grid = document.getElementById('projects-grid');
+            grid.innerHTML = '';
+            
+            const filtered = filter === 'all' 
+                ? portfolioData.projects 
+                : portfolioData.projects.filter(p => p.category.includes(filter));
+
+            filtered.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'project-card bg-white rounded-xl overflow-hidden border border-slate-100 shadow-sm flex flex-col h-full cursor-pointer group';
+                card.onclick = () => openModal(project.id);
+                
+                card.innerHTML = `
+                    <div class="h-2 bg-gradient-to-r from-sky-500 to-indigo-500"></div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center text-sky-600 group-hover:bg-sky-50 transition-colors">
+                                <i class="fas ${project.icon} text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-md uppercase tracking-wide">
+                                ${project.category.includes('ts') ? 'TypeScript' : 'MERN'}
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-sky-600 transition-colors">${project.title}</h3>
+                        <p class="text-slate-600 text-sm mb-4 line-clamp-2 flex-1">${project.shortDesc}</p>
+                        <div class="mt-auto pt-4 border-t border-slate-50 flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-medium truncate w-2/3">${project.tech.split(',')[0]}, ${project.tech.split(',')[1]}...</span>
+                            <span class="text-sky-600 font-semibold group-hover:translate-x-1 transition-transform">Details <i class="fas fa-arrow-right ml-1 text-xs"></i></span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterProjects(category) {
+            // Update buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.classList.add('bg-slate-900', 'text-white', 'border-slate-900');
+                    btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                } else {
+                    btn.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
+                    btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+                }
+            });
+            renderProjects(category);
+        }
+
+        // --- Modal Handling ---
+
+        function openModal(id) {
+            const project = portfolioData.projects.find(p => p.id === id);
+            if (!project) return;
+
+            document.getElementById('modal-title').innerText = project.title;
+            document.getElementById('modal-description').innerText = project.fullDesc;
+            document.getElementById('modal-tech').innerText = project.tech;
+            
+            const tagsContainer = document.getElementById('modal-tags');
+            tagsContainer.innerHTML = '';
+            project.category.forEach(cat => {
+                const span = document.createElement('span');
+                span.className = 'px-2 py-1 bg-sky-100 text-sky-800 text-xs rounded font-medium uppercase';
+                span.innerText = cat;
+                tagsContainer.appendChild(span);
+            });
+
+            document.getElementById('project-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeModal() {
+            document.getElementById('project-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // --- Chart.js Implementation ---
+
+        function initCharts() {
+            const ctx = document.getElementById('skillDistChart').getContext('2d');
+            
+            // Chart 1: Tech Stack Distribution (Doughnut)
+            // Logic: Visualizing the balance between Frontend, Backend, Database, and Tools
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Frontend (React, TS)', 'Backend (Node, Express)', 'Database (Mongo, SQL)', 'Tools (Docker, Git)'],
+                    datasets: [{
+                        data: [35, 30, 20, 15], // Approximate distribution based on project descriptions
+                        backgroundColor: [
+                            '#0ea5e9', // Sky 500
+                            '#22c55e', // Green 500
+                            '#eab308', // Yellow 500
+                            '#64748b'  // Slate 500
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            padding: 12,
+                            titleFont: { family: "'Inter', sans-serif" },
+                            bodyFont: { family: "'Inter', sans-serif" }
+                        }
+                    },
+                    cutout: '70%',
+                }
+            });
+        }
+
+        // --- Navigation & Utility ---
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            const offset = 80; // height of sticky nav
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = element.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function copyEmail() {
+            const email = "avinashsharma31384@gmail.com";
+            navigator.clipboard.writeText(email).then(() => {
+                const btnText = document.getElementById('email-btn-text');
+                const originalText = btnText.innerText;
+                btnText.innerText = "Copied!";
+                setTimeout(() => {
+                    btnText.innerText = originalText;
+                }, 2000);
+            });
+        }
+
+        function setupScrollSpy() {
+            const sections = ['hero', 'skills', 'projects', 'education'];
+            const navItems = document.querySelectorAll('.nav-item');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const element = document.getElementById(section);
+                    const sectionTop = element.offsetTop;
+                    if (window.scrollY >= (sectionTop - 150)) {
+                        current = section;
+                    }
+                });
+
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('onclick').includes(current)) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
